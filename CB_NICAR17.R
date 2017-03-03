@@ -12,7 +12,7 @@
 #However the packages have been pre-installed on these machines
 #For that reason I've commented the code below
 #If you want to use this code at a later stage just remove the hash tag
-#install.packages("rvest", "stringr", "tidyr")
+install.packages("rvest", "stringr", "tidyr")
 
 #Rvest is used for scraping data from the web and includes commands html and html_node
 #Stringr is useful for working with strings, including matching, subsetting and extracting data
@@ -90,10 +90,10 @@ write.csv(sb, 'superbowl.csv', row.names=F)
 
 #Register for xml key with Zillow and assign it to a 'key'
 #The API will not let you call the key but it helps to have it noted in the project
-key <- 'YOUR KEY HERE'
+key <- 'X1-ZWz1fojwj0cs23_3l8b3'
 
 #Just as before we would usually install the packages needed for this project at the start of the script
-#install.packages("RCurl", "XML")
+install.packages("RCurl", "XML")
 #RCurl is used to interact with the API, this contains the command getForm
 #The results of the API call will be in XML and the package allows us to parse the data
 
@@ -105,9 +105,9 @@ library(RCurl, XML)
 #We're going to use the GetSearchResults call first
 
 wbreply = getForm("http://www.zillow.com/webservice/GetSearchResults.htm",
-                'zws-id' = "YOUR KEY HERE",
-                address = "10734 Waverly Bluff Way",
-                citystatezip = "Jacksonville, FL 32223")
+                'zws-id' = "X1-ZWz1fojwj0cs23_3l8b3",
+                address = "2030 Webster Street",
+                citystatezip = "Philadelphia, PA 19146")
 
 
 #From the getForm call we have created something called 'wbreply'
@@ -115,7 +115,7 @@ wbreply = getForm("http://www.zillow.com/webservice/GetSearchResults.htm",
 #As we're working with an API the response is in XML
 #XML, much like html, has it's own structure called XPath
 #The XPath has what's known as nodes and trees - ways of structuring the information
-#We'll put the XML into an object, using the internal XPath stucture
+#We'll put the XML into an object, using the internal XPath stucture- we won't define the unique XML
 
 wbdoc = xmlTreeParse(wbreply, asText = TRUE, useInternal = TRUE)
 
@@ -126,7 +126,7 @@ wbdoc
 
 #Where is the value of the property stored in the XML?
 
-xmlValue(wbdoc[["//amount"]])
+xmlValue(wbdoc[["//amount"]]) #two brackets are the nodes
 
 #Let's carry out a larger API call and structure the output into a dataframe
 #This time we're going to look at the GetRegionChildren
@@ -134,29 +134,29 @@ xmlValue(wbdoc[["//amount"]])
 #We're required to specify the state, city and childtype, i.e. what data we'd like to be returned
 #Let's structure the call using getForm again 
 
-jaxreply = getForm("http://www.zillow.com/webservice/GetRegionChildren.htm",
-                   'zws-id' = "YOUR KEY HERE",
-                   state = "fl",
-                   city = "jacksonville",
+phlreply = getForm("http://www.zillow.com/webservice/GetRegionChildren.htm",
+                   'zws-id' = "X1-ZWz1fojwj0cs23_3l8b3",
+                   state = "pa",
+                   city = "Philadelphia",
                    childtype = "neighborhood")
 
 #Let's parse the content to an object based on it's internal xmlTree structure 
-jaxdoc = xmlTreeParse(jaxreply, asText = TRUE, useInternal = TRUE)
+phldoc = xmlTreeParse(phlreply, asText = TRUE, useInternal = TRUE)
 
 #Write result to XML file
-saveXML(jaxdoc, file="jaxdoc.xml")
+saveXML(phldoc, file="phldoc.xml")
 
 #What does the output look like?
-jaxdoc
+phldoc
 
 #Use XMLtoList to transform your XML output to a list
-jaxlist <-xmlToList(jaxdoc)
+phllist <-xmlToList(phldoc)
 
 #Convert the list into a dataframe
-jaxtable <- ldply(jaxlist, data.frame)
+phltable <- ldply(phllist, data.frame)
 
 #We now want to restructure the dataframe
 #By parsing we'll disgard the useless data and keep the elements we need
 
 #Let's export the data into a csv 
-write.csv(jaxtable, "jaxtable.csv")
+write.csv(phltable, "phltable.csv")
